@@ -1,0 +1,1660 @@
+<!doctype html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d6b58">
+  <meta name="description"
+    content="Track personal udhar, payments, events, and trip expenses securely in your browser.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <title>Personal Udhar & Payment Manager</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f8f7;
+      --surface: #ffffff;
+      --surface-soft: #edf8f4;
+      --surface-muted: #f3f7f5;
+      --text: #172b25;
+      --muted: #687a73;
+      --border: #e1eae5;
+      --primary: #087f5b;
+      --primary-strong: #066649;
+      --primary-soft: #e6f6ef;
+      --success: #16845b;
+      --warning: #b7791f;
+      --danger: #c03945;
+      --info: #2878b5;
+      --shadow: 0 8px 24px rgba(8, 127, 91, 0.08);
+      --shadow-soft: 0 10px 24px rgba(23, 43, 37, 0.06);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none
+    }
+
+    img {
+      max-width: 100%;
+      display: block
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit
+    }
+
+    .app {
+      min-height: 100vh;
+      background: var(--bg);
+      padding: 0 0 88px
+    }
+
+    .topbar {
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px clamp(14px, 4vw, 38px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      color: #fff;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      font-weight: 800;
+      box-shadow: var(--shadow-soft)
+    }
+
+    .brand h1 {
+      font-size: 1.1rem;
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: -.02em
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .75rem
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      position: relative
+    }
+
+    .more-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(14, 29, 20, .12);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      min-width: 190px;
+      z-index: 25
+    }
+
+    .more-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: var(--text);
+      background: transparent;
+      font-weight: 600
+    }
+
+    .more-menu button:hover {
+      background: var(--primary-soft);
+      color: var(--primary-strong)
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all .15s ease;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .01)
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-1px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 18px rgba(8, 127, 91, .08)
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary)
+    }
+
+    .btn.primary:hover,
+    .btn.primary:focus-visible {
+      background: var(--primary-strong);
+      border-color: var(--primary-strong)
+    }
+
+    .btn.soft {
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      border-color: transparent
+    }
+
+    .btn.danger {
+      background: rgba(192, 57, 69, .06);
+      color: var(--danger);
+      border-color: rgba(192, 57, 69, .12)
+    }
+
+    .btn.small {
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px
+    }
+
+    .btn-more {
+      display: none
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px clamp(14px, 3vw, 28px)
+    }
+
+    @media (max-width:900px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr
+      }
+
+      .topbar {
+        padding: 12px 14px
+      }
+    }
+
+    @media (max-width:620px) {
+      .app {
+        padding-bottom: 96px
+      }
+
+      .topbar {
+        padding: 10px 12px
+      }
+
+      .brand p {
+        display: none
+      }
+
+      .top-actions {
+        gap: 6px
+      }
+
+      .top-actions .btn:not(.btn-more) {
+        display: none
+      }
+
+      .btn-more {
+        display: inline-flex
+      }
+
+      .wrap {
+        padding: 14px 12px 18px
+      }
+
+      .welcome {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 18px
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column
+      }
+
+      .search-row {
+        flex-direction: column
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px
+      }
+
+      .stat {
+        padding: 14px
+      }
+
+      .panel {
+        padding: 16px
+      }
+
+      .person-row {
+        padding: 10px 11px
+      }
+
+      .bottomnav {
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        gap: 4px
+      }
+
+      .navbtn {
+        font-size: 9px;
+        padding: 7px 5px
+      }
+
+      .navbtn span {
+        font-size: 15px
+      }
+
+      .more-menu {
+        right: 0;
+        left: auto;
+        min-width: 180px
+      }
+    }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      margin-bottom: 22px
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--primary)
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      line-height: 1.2;
+      margin: 5px 0 8px;
+      letter-spacing: -.04em
+    }
+
+    .sub {
+      color: var(--muted);
+      margin: 0
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px
+    }
+
+    .stat,
+    .panel,
+    .person-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow)
+    }
+
+    .stat {
+      padding: 18px
+    }
+
+    .stat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      font-size: 17px;
+      color: var(--primary)
+    }
+
+    .stat-value {
+      font-size: clamp(1.3rem, 2.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      margin: 10px 0 3px;
+      font-variant-numeric: tabular-nums
+    }
+
+    .stat-note {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .green {
+      color: var(--success)
+    }
+
+    .red {
+      color: var(--danger)
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px
+    }
+
+    .section-head h3 {
+      font-size: 1.05rem;
+      margin: 0
+    }
+
+    .section-head p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 3px 0 0
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+      gap: 18px
+    }
+
+    .panel {
+      padding: 20px;
+      min-width: 0
+    }
+
+    .search-row {
+      display: flex;
+      gap: 9px;
+      margin-bottom: 14px
+    }
+
+    .field {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      min-width: 0;
+      transition: border-color .15s ease, box-shadow .15s ease
+    }
+
+    .field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(8, 127, 91, .12)
+    }
+
+    .person-list {
+      display: grid;
+      gap: 9px
+    }
+
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .15s ease;
+      background: linear-gradient(180deg, #fff, #fcfffd)
+    }
+
+    .person-row:hover {
+      border-color: var(--primary);
+      background: var(--surface-soft)
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      font-weight: 800;
+      flex-shrink: 0
+    }
+
+    .person-meta {
+      min-width: 0;
+      flex: 1
+    }
+
+    .person-meta strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .person-meta small {
+      color: var(--muted)
+    }
+
+    .balance {
+      text-align: right;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap
+    }
+
+    .balance small {
+      display: block;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 590px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      background: var(--surface-muted)
+    }
+
+    td {
+      font-size: 13px
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0
+    }
+
+    .amount {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap
+    }
+
+    .type-pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800
+    }
+
+    .type-pill.given {
+      background: #fff0df;
+      color: #9a570b
+    }
+
+    .type-pill.received {
+      background: #dff5ed;
+      color: #086b53
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted)
+    }
+
+    .empty .emoji {
+      font-size: 28px;
+      margin-bottom: 8px
+    }
+
+    .bottomnav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px clamp(8px, 3vw, 18px) calc(8px + env(safe-area-inset-bottom));
+      z-index: 10
+    }
+
+    .navbtn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 700;
+      min-width: 0;
+      flex: 1 1 0;
+      max-width: 100px
+    }
+
+    .navbtn span {
+      font-size: 16px;
+      line-height: 1
+    }
+
+    .navbtn.active {
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 91, .05)
+    }
+
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px
+    }
+
+    .filters .field {
+      width: auto;
+      flex: 1;
+      min-width: 140px
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 19, 15, .45);
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px
+    }
+
+    .modal-backdrop.show {
+      display: flex
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: min(560px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .18)
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 1.1rem
+    }
+
+    .icon-btn {
+      border: 0;
+      background: var(--surface-muted);
+      color: var(--text);
+      border-radius: 10px;
+      width: 34px;
+      height: 34px;
+      font-size: 19px
+    }
+
+    .modal-body {
+      padding: 20px
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .form-group.full {
+      grid-column: 1/-1
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted)
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+      flex-wrap: wrap
+    }
+
+    .segmented {
+      display: flex;
+      gap: 5px;
+      padding: 4px;
+      background: var(--surface-muted);
+      border-radius: 11px
+    }
+
+    .segmented button {
+      flex: 1;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 800
+    }
+
+    .segmented button.active {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .toast {
+      position: fixed;
+      top: 82px;
+      right: 18px;
+      background: rgba(23, 43, 37, .96);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      z-index: 40;
+      box-shadow: var(--shadow);
+      display: none
+    }
+
+    .toast.show {
+      display: block
+    }
+
+    .ledger-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0
+    }
+
+    .mini-stat {
+      background: var(--surface-muted);
+      border-radius: 12px;
+      padding: 13px
+    }
+
+    .mini-stat small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px
+    }
+
+    .mini-stat strong {
+      font-size: 1.1rem;
+      display: block;
+      margin-top: 5px
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px
+    }
+
+    .back {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      color: var(--text);
+      font-size: 18px
+    }
+
+    .person-detail-head {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .person-detail-head .avatar {
+      width: 50px;
+      height: 50px
+    }
+
+    .notice {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 16px
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .more-menu {
+      position: absolute;
+      top: 58px;
+      right: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      min-width: 180px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 25
+    }
+
+    .more-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600
+    }
+
+    .more-menu button:hover {
+      background: var(--surface-muted)
+    }
+
+    @media (max-width: 850px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr
+      }
+
+      .welcome {
+        align-items: flex-start;
+        flex-direction: column
+      }
+
+      .welcome .btn {
+        width: 100%
+      }
+
+      .wrap {
+        padding-top: 20px
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        padding: 12px 14px
+      }
+
+      .brand h1 {
+        font-size: 1rem
+      }
+
+      .brand p {
+        font-size: .68rem
+      }
+
+      .top-actions {
+        gap: 6px
+      }
+
+      .btn {
+        padding: 10px 12px
+      }
+
+      .btn.primary,
+      .btn:not(.btn-small) {
+        min-height: 44px
+      }
+
+      .btn-more {
+        display: inline-flex
+      }
+
+      .top-actions .btn:not(.btn-more):not(.primary) {
+        display: none
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px
+      }
+
+      .stat {
+        padding: 14px
+      }
+
+      .stat-value {
+        font-size: 1.15rem
+      }
+
+      .navbtn {
+        padding: 8px 4px;
+        font-size: 9px
+      }
+
+      .navbtn span {
+        font-size: 15px
+      }
+
+      .bottomnav {
+        gap: 4px;
+        padding-inline: 8px
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: 1fr
+      }
+
+      .filters .field {
+        min-width: 0
+      }
+
+      .search-row {
+        display: grid;
+        grid-template-columns: 1fr auto
+      }
+
+      .table-wrap {
+        border-radius: 10px
+      }
+
+      .modal {
+        border-radius: 16px
+      }
+
+      .modal-body {
+        padding: 16px
+      }
+
+      .toast {
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        max-width: none
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" id="appRoot">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">₹</div>
+        <div>
+          <h1>Personal Ledger</h1>
+          <p>Udhar & Payment Manager</p>
+        </div>
+      </div>
+      <div class="top-actions"><button class="btn" id="backupBtn">↧ Backup</button><button class="btn primary"
+          id="quickAddBtn">＋ Add entry</button><button class="btn btn-more" id="moreActionsBtn" type="button"
+          aria-expanded="false" aria-controls="moreActionsMenu">⋯ More</button></div>
+      <div class="more-menu hidden" id="moreActionsMenu" role="menu" aria-label="Quick actions"><button type="button"
+          data-more-action="add-person">＋ Add person</button><button type="button" data-more-action="add-entry">＋ Add
+          entry</button><button type="button" data-more-action="backup">↧ Backup</button><button type="button"
+          data-more-action="people">People</button><button type="button"
+          data-more-action="transactions">Transactions</button></div>
+    </header>
+    <main class="wrap">
+      <section class="page active" id="dashboardPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">YOUR MONEY, CLEARLY TRACKED</div>
+            <h2>Namaskar, Somnath 👋</h2>
+            <p class="sub">A clear picture of money given, received and still due.</p>
+          </div><button class="btn primary" id="dashboardAddBtn">＋ Add transaction</button>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-head">Total given <span class="stat-icon">↗</span></div>
+            <div class="stat-value" id="totalGiven">₹0</div>
+            <div class="stat-note">Money you have paid out</div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">Total received <span class="stat-icon">↙</span></div>
+            <div class="stat-value green" id="totalReceived">₹0</div>
+            <div class="stat-note">Money returned to you</div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">Outstanding balance <span class="stat-icon">◎</span></div>
+            <div class="stat-value" id="totalBalance">₹0</div>
+            <div class="stat-note">Net amount yet to be settled</div>
+          </div>
+          <div class="stat">
+            <div class="stat-head">People with balance <span class="stat-icon">♙</span></div>
+            <div class="stat-value" id="peopleDue">0</div>
+            <div class="stat-note">Accounts with money due</div>
+          </div>
+        </div>
+        <div class="content-grid">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>People & their balance</h3>
+                <p>Tap a person to open their ledger</p>
+              </div><button class="btn small" id="addPersonBtn">＋ Person</button>
+            </div>
+            <div class="search-row"><input class="field" id="personSearch" placeholder="Search name or mobile…"><button
+                class="btn" id="allPeopleBtn">View all</button></div>
+            <div class="person-list" id="dashboardPeople"></div>
+          </div>
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>Recent activity</h3>
+                <p>Your latest transactions</p>
+              </div><button class="btn small" id="viewTransactionsBtn">View all</button>
+            </div>
+            <div id="recentTransactions"></div>
+          </div>
+        </div>
+      </section>
+      <section class="page" id="personsPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">YOUR CONTACTS</div>
+            <h2>People & accounts</h2>
+            <p class="sub">Keep a separate running ledger for every person.</p>
+          </div><button class="btn primary" id="personsAddBtn">＋ Add person</button>
+        </div>
+        <div class="panel">
+          <div class="search-row"><input class="field" id="allPersonSearch"
+              placeholder="Search people by name or mobile…"></div>
+          <div class="person-list" id="allPeopleList"></div>
+        </div>
+      </section>
+      <section class="page" id="transactionsPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">COMPLETE RECORD</div>
+            <h2>All transactions</h2>
+            <p class="sub">Filter, review and correct every entry.</p>
+          </div><button class="btn primary" id="transactionsAddBtn">＋ Add entry</button>
+        </div>
+        <div class="panel">
+          <div class="filters"><input class="field" id="txSearch" placeholder="Search person or description…"><select
+              class="field" id="txType">
+              <option value="ALL">All transaction types</option>
+              <option value="GIVEN">Money given</option>
+              <option value="RECEIVED">Money received</option>
+            </select><input class="field" id="txMonth" type="month" aria-label="Filter by month"></div>
+          <div id="allTransactionsTable"></div>
+        </div>
+      </section>
+      <section class="page" id="tripsPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">TEMPORARY TRIP PLANNER</div>
+            <h2>Trip expense splitter</h2>
+            <p class="sub">Record who paid, what it was for, and split the total by person or family.</p>
+          </div><button class="btn primary" id="tripNewBtn">＋ New trip</button>
+        </div>
+        <div class="content-grid">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>Trip setup</h3>
+                <p>Short trips are temporary; finish a trip to export its report and delete its trip-only data.</p>
+              </div>
+            </div>
+            <form id="tripForm"><input type="hidden" id="tripId">
+              <div class="form-group"><label for="tripName">Trip name *</label><input class="field" id="tripName"
+                  required maxlength="100" placeholder="e.g. Tarkarli Family Trip"></div>
+              <div class="form-grid" style="margin-top:12px">
+                <div class="form-group"><label for="tripStart">Start date *</label><input class="field" type="date"
+                    id="tripStart" required></div>
+                <div class="form-group"><label for="tripEnd">End date *</label><input class="field" type="date"
+                    id="tripEnd" required></div>
+                <div class="form-group full"><label for="tripSplitMode">Split expenses by</label><select class="field"
+                    id="tripSplitMode">
+                    <option value="person">Person-wise (equal share per person)</option>
+                    <option value="family">Family-wise (equal share per family)</option>
+                  </select></div>
+                <div class="form-group full"><label for="tripParticipants">Participants * (one per line: Person name -
+                    Family name)</label><textarea class="field" id="tripParticipants" rows="5" required
+                    placeholder="Somnath Sumbe - Sumbe Family&#10;Sunita Sumbe - Sumbe Family&#10;Rutwij - Deshmukh Family"></textarea>
+                  <div class="field-hint">Family names group participants for family-wise calculations.</div>
+                </div>
+              </div>
+              <div class="form-actions"><button class="btn primary" type="submit">Save trip &
+                  participants</button><button class="btn" type="button" id="tripCancelEdit">Clear</button></div>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>Active trips</h3>
+                <p>Select a trip to add expenses and view settlement.</p>
+              </div>
+            </div>
+            <div id="tripList"></div>
+          </div>
+        </div>
+        <div id="tripWorkspace" class="hidden">
+          <div class="panel" style="margin-top:16px">
+            <div class="section-head">
+              <div>
+                <h3 id="tripActiveTitle">Trip expenses</h3>
+                <p id="tripActiveMeta"></p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="tripExportCsv">↓ Excel
+                  CSV</button><button class="btn small" id="tripPrintPdf">⎙ Print / PDF</button><button
+                  class="btn danger small" id="tripFinishBtn">Finish trip & delete data</button></div>
+            </div>
+            <form id="tripExpenseForm"><input type="hidden" id="tripExpenseId">
+              <div class="form-grid">
+                <div class="form-group"><label for="tripExpenseDate">Date *</label><input class="field" type="date"
+                    id="tripExpenseDate" required></div>
+                <div class="form-group"><label for="tripExpenseCategory">Category *</label><select class="field"
+                    id="tripExpenseCategory">
+                    <option>Food</option>
+                    <option>Fuel / Transport</option>
+                    <option>Hotel / Stay</option>
+                    <option>Tickets / Activities</option>
+                    <option>Shopping</option>
+                    <option>Parking / Toll</option>
+                    <option>Other</option>
+                  </select></div>
+                <div class="form-group"><label for="tripExpensePaidBy">Paid by *</label><select class="field"
+                    id="tripExpensePaidBy" required></select></div>
+                <div class="form-group"><label for="tripExpenseAmount">Amount (₹) *</label><input class="field"
+                    type="number" id="tripExpenseAmount" required min="0.01" step="0.01" placeholder="0.00"></div>
+                <div class="form-group full"><label for="tripExpenseDescription">Purpose / description *</label><input
+                    class="field" id="tripExpenseDescription" required maxlength="160"
+                    placeholder="e.g. Lunch for everyone"></div>
+                <div class="form-actions"><button class="btn primary" type="submit">＋ Save expense</button><button
+                    class="btn" type="button" id="tripExpenseClear">Clear</button></div>
+              </div>
+            </form>
+            <div class="stats" style="margin-top:18px">
+              <div class="stat">
+                <div class="stat-head">Total trip expense <span class="stat-icon">₹</span></div>
+                <div class="stat-value" id="tripTotal">₹0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-head">Participants <span class="stat-icon">♙</span></div>
+                <div class="stat-value" id="tripPeopleCount">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-head">Families <span class="stat-icon">⌂</span></div>
+                <div class="stat-value" id="tripFamilyCount">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-head">Expenses <span class="stat-icon">≡</span></div>
+                <div class="stat-value" id="tripExpenseCount">0</div>
+              </div>
+            </div>
+            <div class="section-head">
+              <div>
+                <h3>Who paid & who owes</h3>
+                <p>Net amount = paid by person − their calculated share.</p>
+              </div>
+            </div>
+            <div id="tripSettlement"></div>
+            <div class="section-head" style="margin-top:18px">
+              <div>
+                <h3>Expense history</h3>
+                <p>Review or remove an incorrect expense.</p>
+              </div>
+            </div>
+            <div id="tripExpenseHistory"></div>
+          </div>
+        </div>
+        <div class="notice" style="margin-top:16px">Trip records are separate from your permanent People, Udhar and
+          Wedding ledgers. “Finish trip & delete data” first downloads an Excel-compatible CSV and opens a printable
+          report, then asks for confirmation before deleting only that trip and its participants/expenses. Save the PDF
+          from the print dialog before confirming deletion.</div>
+      </section>
+      <section class="page" id="eventsPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">EVENT & FAMILY SETTLEMENT</div>
+            <h2>Wedding & event ledger</h2>
+            <p class="sub">Track event expenses, family contributions and repayments made by relatives or friends.</p>
+          </div><button class="btn primary" id="eventAddEntryBtn">＋ Add event entry</button>
+        </div>
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <h3>Event-wise settlement</h3>
+              <p>Expenses marked “repayable” are included in the balance.</p>
+            </div>
+          </div>
+          <div id="eventsList"></div>
+          <div class="notice">For a repayment, set transaction type to “Money received”, enter who actually paid, and
+            fill “On behalf of” when a relative or friend pays for someone else. Gift/non-repayable expenses are
+            excluded from the due balance.</div>
+        </div>
+      </section>
+      <section class="page" id="ledgerPage">
+        <div class="page-title"><button class="back" id="ledgerBack">←</button>
+          <div id="ledgerPersonHeading"></div><button class="btn primary" id="ledgerAddBtn" style="margin-left:auto">＋
+            Add entry</button>
+        </div>
+        <div class="panel">
+          <div class="ledger-summary">
+            <div class="mini-stat"><small>Total given</small><strong id="ledgerGiven">₹0</strong></div>
+            <div class="mini-stat"><small>Total received</small><strong class="green" id="ledgerReceived">₹0</strong>
+            </div>
+            <div class="mini-stat"><small>Outstanding balance</small><strong id="ledgerBalance">₹0</strong></div>
+          </div>
+          <div class="section-head">
+            <div>
+              <h3>Ledger history</h3>
+              <p>All entries for this person, newest first</p>
+            </div>
+          </div>
+          <div id="ledgerTransactions"></div>
+          <div class="notice">Balance = eligible repayable expenses − repayments received. Entries are saved on this
+            device in browser storage.</div>
+        </div>
+      </section>
+      <section class="page" id="reportsPage">
+        <div class="welcome">
+          <div>
+            <div class="eyebrow">SUMMARY & DATA SAFETY</div>
+            <h2>Reports & backup</h2>
+            <p class="sub">Export a copy of your records or restore a previous backup.</p>
+          </div>
+        </div>
+        <div class="content-grid">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>Ledger summary</h3>
+                <p>Current totals across all people</p>
+              </div>
+            </div>
+            <div id="reportSummary"></div>
+            <div class="form-actions" style="justify-content:flex-start"><button class="btn primary"
+                id="printReportBtn">⎙ Print report</button><button class="btn" id="csvBtn">↓ Export CSV</button></div>
+          </div>
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>Backup & restore</h3>
+                <p>Keep your own copy of the data</p>
+              </div>
+            </div>
+            <p class="sub" style="margin-bottom:16px">Export a complete, versioned JSON backup or import a backup from
+              another device.</p>
+            <div style="display:grid;gap:10px"><button class="btn primary" id="exportJsonBtn">↓ Export all data to
+                JSON</button><label class="btn" for="importFile">↑ Import data from JSON</label><input class="hidden"
+                type="file" id="importFile" accept="application/json,.json"><button class="btn danger"
+                id="clearDataBtn">Delete all local data</button></div>
+            <div class="notice" id="backupNotice" role="status" aria-live="polite"></div>
+            <div class="notice">Changes save automatically in this browser's IndexedDB and remain available offline,
+              subject to browser storage limits. A downloaded JSON backup is a separate snapshot; export a new one
+              after later changes. Browser storage is not a substitute for keeping a backup file.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="bottomnav"><button class="navbtn active" data-page="dashboardPage"><span>⌂</span>Home</button><button
+        class="navbtn" data-page="personsPage"><span>♙</span>People</button><button class="navbtn"
+        data-page="transactionsPage"><span>⇄</span>Entries</button><button class="navbtn"
+        data-page="tripsPage"><span>🧳</span>Trips</button><button class="navbtn"
+        data-page="eventsPage"><span>💍</span>Events</button><button class="navbtn"
+        data-page="reportsPage"><span>▤</span>Reports</button></nav>
+  </div>
+  <div class="modal-backdrop" id="personModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="personModalTitle">Add a person</h3><button class="icon-btn" data-close="personModal">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="personForm"><input type="hidden" id="personId">
+          <div class="form-grid">
+            <div class="form-group full"><label for="personName">Full name *</label><input class="field" id="personName"
+                required maxlength="100" placeholder="e.g. S. Deshmukh"></div>
+            <div class="form-group"><label for="personMobile">Mobile number</label><input class="field"
+                id="personMobile" inputmode="tel" maxlength="15" placeholder="Optional"></div>
+            <div class="form-group"><label for="personRelation">Relationship / category</label><select class="field"
+                id="personRelation">
+                <option>Family</option>
+                <option>Friend</option>
+                <option>Work</option>
+                <option>Other</option>
+              </select></div>
+            <div class="form-group full"><label for="personNotes">Notes</label><textarea class="field" id="personNotes"
+                rows="2" placeholder="Optional details"></textarea></div>
+          </div>
+          <div class="form-actions"><button type="button" class="btn" data-close="personModal">Cancel</button><button
+              class="btn primary" type="submit">Save person</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="transactionModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="txModalTitle">Add transaction</h3><button class="icon-btn" data-close="transactionModal">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="transactionForm"><input type="hidden" id="txId">
+          <div class="form-group" style="margin-bottom:14px"><label>Transaction type *</label>
+            <div class="segmented"><button type="button" class="active" data-txtype="GIVEN">↗ Money
+                given</button><button type="button" data-txtype="RECEIVED">↙ Money received</button></div><input
+              type="hidden" id="transactionType" value="GIVEN">
+          </div>
+          <div class="form-grid">
+            <div class="form-group full"><label for="txPerson">Person *</label><select class="field" id="txPerson"
+                required>
+                <option value="">Choose a person…</option>
+              </select>
+              <div style="text-align:right"><button class="btn small" type="button" id="addPersonFromTx">＋ Add new
+                  person</button></div>
+            </div>
+            <div class="form-group"><label for="txDate">Date *</label><input class="field" id="txDate" type="date"
+                required></div>
+            <div class="form-group"><label for="txAmount">Amount (₹) *</label><input class="field" id="txAmount"
+                type="number" min="0.01" max="1000000000" step="0.01" required placeholder="5000.00"></div>
+            <div class="form-group full"><label for="txDescription">Description / reason *</label><input class="field"
+                id="txDescription" required maxlength="180" placeholder="e.g. Wedding clothes, personal loan"></div>
+            <div class="form-group"><label for="txPaidBy">Paid by / received by</label><input class="field"
+                id="txPaidBy" value="Somnath" placeholder="Somnath / Sunita"></div>
+            <div class="form-group"><label for="txMode">Payment method</label><select class="field" id="txMode">
+                <option>Cash</option>
+                <option>GPay / UPI</option>
+                <option>Bank transfer</option>
+                <option>Cheque</option>
+                <option>Other</option>
+              </select></div>
+            <div class="form-group full"><label for="txNotes">Notes (optional)</label><textarea class="field"
+                id="txNotes" rows="2" placeholder="Reference or extra details"></textarea></div>
+          </div>
+          <div class="form-actions"><button type="button" class="btn"
+              data-close="transactionModal">Cancel</button><button class="btn primary" type="submit">Save
+              transaction</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="importChoiceModal" role="dialog" aria-modal="true" aria-labelledby="importChoiceTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="importChoiceTitle">Import JSON data</h3><button class="icon-btn" type="button"
+          id="cancelImportIcon" aria-label="Cancel import">×</button>
+      </div>
+      <div class="modal-body">
+        <p id="importSummary" class="sub"></p>
+        <div class="notice">A downloadable JSON backup of current data will be created before either option is applied.
+          “Replace all data” overwrites current records; “Merge new records” keeps current records and skips duplicate
+          or conflicting IDs. Import is atomic if browser storage fails.</div>
+        <div class="form-actions">
+          <button type="button" class="btn" id="cancelImportBtn">Cancel</button>
+          <button type="button" class="btn" id="mergeImportBtn">Merge new records</button>
+          <button type="button" class="btn primary" id="replaceImportBtn">Replace all data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    (() => {
+      'use strict';
+      const DB_NAME = 'PersonalLedgerDB', DB_VERSION = 3, APP_VERSION = '1.0.0', BACKUP_SCHEMA_VERSION = 2, STORE_NAMES = ['persons', 'transactions', 'trips', 'tripMembers', 'tripExpenses', 'settings']; let db = null, people = [], transactions = [], activePersonId = null, activeEventName = null, returnPage = 'dashboardPage', pendingImport = null;
+      const $ = id => document.getElementById(id); const money = n => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format((n || 0) / 100); const dateFmt = s => { if (!s) return '—'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}` }; const today = () => new Date().toLocaleDateString('en-CA'); const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2); const paise = v => Math.round(Number(v) * 100); const showToast = t => { const el = $('toast'); el.textContent = t; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2400) }; const closeMoreMenu = () => { const menu = $('moreActionsMenu'); const btn = $('moreActionsBtn'); if (!menu || !btn) return; menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false') }; const toggleMoreMenu = () => { const menu = $('moreActionsMenu'); const btn = $('moreActionsBtn'); if (!menu || !btn) return; const hidden = menu.classList.toggle('hidden'); btn.setAttribute('aria-expanded', String(!hidden)); }; const registerServiceWorker = () => { if (!('serviceWorker' in navigator) || location.protocol === 'file:') return; navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('Service worker registration failed:', err)); }; const updateOfflineStatus = () => { if (!navigator.onLine) { showToast('Offline mode: viewing cached data only.'); } else { const el = $('toast'); if (el && el.classList.contains('show')) el.classList.remove('show') } }; window.addEventListener('online', () => showToast('Connection restored.')); window.addEventListener('offline', updateOfflineStatus);
+      function openDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, DB_VERSION); req.onupgradeneeded = () => { const d = req.result; if (!d.objectStoreNames.contains('persons')) { const s = d.createObjectStore('persons', { keyPath: 'id' }); s.createIndex('name', 'name', { unique: false }); s.createIndex('mobile', 'mobile', { unique: false }) } if (!d.objectStoreNames.contains('transactions')) { const s = d.createObjectStore('transactions', { keyPath: 'id' }); s.createIndex('personId', 'personId', { unique: false }); s.createIndex('transactionDate', 'transactionDate', { unique: false }); s.createIndex('type', 'type', { unique: false }) } if (!d.objectStoreNames.contains('trips')) d.createObjectStore('trips', { keyPath: 'id' }); if (!d.objectStoreNames.contains('tripMembers')) { const s = d.createObjectStore('tripMembers', { keyPath: 'id' }); s.createIndex('tripId', 'tripId', { unique: false }) } if (!d.objectStoreNames.contains('tripExpenses')) { const s = d.createObjectStore('tripExpenses', { keyPath: 'id' }); s.createIndex('tripId', 'tripId', { unique: false }); s.createIndex('paidById', 'paidById', { unique: false }) } if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings', { keyPath: 'key' }) }; req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error) }) }
+      function store(name, mode = 'readonly') { return db.transaction(name, mode).objectStore(name) } function getAll(name) { return new Promise((resolve, reject) => { const r = store(name).getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error) }) } function put(name, item) { return new Promise((resolve, reject) => { const t = db.transaction(name, 'readwrite'); t.objectStore(name).put(item); t.oncomplete = resolve; t.onerror = () => reject(t.error); t.onabort = () => reject(t.error || new Error('Storage transaction was aborted')) }) } function remove(name, id) { return new Promise((resolve, reject) => { const t = db.transaction(name, 'readwrite'); t.objectStore(name).delete(id); t.oncomplete = resolve; t.onerror = () => reject(t.error); t.onabort = () => reject(t.error || new Error('Storage transaction was aborted')) }) }
+      function readAllData() { return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAMES, 'readonly'), snapshot = {}; STORE_NAMES.forEach(name => { const request = tx.objectStore(name).getAll(); request.onsuccess = () => { snapshot[name] = request.result }; request.onerror = () => reject(request.error || new Error(`Could not read ${name}`)) }); tx.oncomplete = () => resolve(snapshot); tx.onerror = () => reject(tx.error || new Error('Could not read browser data')); tx.onabort = () => reject(tx.error || new Error('Reading browser data was aborted')) }) }
+      function writeSnapshot(data, replace) { return new Promise((resolve, reject) => { let tx; try { tx = db.transaction(STORE_NAMES, 'readwrite'); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error || new Error('Could not save imported data')); tx.onabort = () => reject(tx.error || new Error('Import was rolled back because browser storage failed')); if (replace) STORE_NAMES.forEach(name => tx.objectStore(name).clear()); STORE_NAMES.forEach(name => (data[name] || []).forEach(item => tx.objectStore(name).put(item))) } catch (error) { if (tx) { try { tx.abort() } catch (abortError) { console.error('Could not abort failed import transaction:', abortError) } } reject(error) } }) }
+      function defaultPreferences() { return { backupReminderDays: 30, lastBackupAt: null } }
+      async function ensurePreferences() { const rows = await getAll('settings'); if (!rows.some(row => row.key === 'appPreferences')) await put('settings', { key: 'appPreferences', value: defaultPreferences(), updatedAt: new Date().toISOString() }) }
+      async function savePreferences(value) { await put('settings', { key: 'appPreferences', value, updatedAt: new Date().toISOString() }) }
+      function stampBackupPreference(snapshot, exportedAt) { let item = snapshot.settings.find(row => row.key === 'appPreferences'); const raw = item?.value, value = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : defaultPreferences(), preferences = { ...defaultPreferences(), ...value, lastBackupAt: exportedAt }; if (item) { item.value = preferences; item.updatedAt = exportedAt } else snapshot.settings.push({ key: 'appPreferences', value: preferences, updatedAt: exportedAt }); return preferences }
+      function showBackupStatus(settings) { const item = settings.find(row => row.key === 'appPreferences'), raw = item?.value, preferences = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : defaultPreferences(), lastBackupAt = preferences.lastBackupAt; if (!lastBackupAt) { $('backupNotice').textContent = 'No successful JSON backup recorded yet. Export a backup regularly to keep a separate copy.'; return } const last = new Date(lastBackupAt); if (Number.isNaN(last.getTime())) { $('backupNotice').textContent = 'Last backup date is unavailable. Export a new JSON backup to refresh it.'; return } const days = Math.max(0, Math.floor((Date.now() - last.getTime()) / 86400000)), reminderDays = Number(preferences.backupReminderDays) || 30, due = days >= reminderDays; $('backupNotice').textContent = `Last successful JSON backup: ${last.toLocaleDateString('en-GB')}.${due ? ` It has been ${days} days; export a fresh backup soon.` : ''}` }
+      function validDate(value) { if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false; const date = new Date(`${value}T00:00:00Z`); return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value }
+      function validateBackup(input) {
+        let data;
+        if (input?.format === 'personal-ledger-backup') {
+          if (input.schemaVersion !== BACKUP_SCHEMA_VERSION) throw new Error(`Unsupported backup schema version "${input.schemaVersion}". This app supports version ${BACKUP_SCHEMA_VERSION}.`);
+          if (typeof input.appVersion !== 'string' || !input.appVersion.trim()) throw new Error('Backup is missing its application version.');
+          if (typeof input.exportedAt !== 'string' || Number.isNaN(Date.parse(input.exportedAt))) throw new Error('Backup is missing a valid export date.');
+          if (!input.data || typeof input.data !== 'object' || Array.isArray(input.data)) throw new Error('Backup data must be an object.');
+          data = input.data;
+        } else if (input?.app === 'Personal Udhar & Payment Manager' && input.version === 1) {
+          data = { persons: input.persons, transactions: input.transactions, trips: [], tripMembers: [], tripExpenses: [], settings: [] };
+        } else {
+          throw new Error('This is not a supported Personal Ledger JSON backup.');
+        }
+        for (const name of STORE_NAMES) if (!Array.isArray(data[name])) throw new Error(`Backup is missing the "${name}" list or it is not an array.`);
+        const errors = [];
+        const uniqueIds = (name, key = 'id') => { const seen = new Set(); data[name].forEach((item, index) => { if (!item || typeof item !== 'object' || Array.isArray(item)) { errors.push(`${name}[${index}] must be an object.`); return } const id = item[key]; if (typeof id !== 'string' || !id.trim()) errors.push(`${name}[${index}] needs a non-empty ${key}.`); else if (seen.has(id)) errors.push(`${name} contains duplicate ${key} "${id}".`); else seen.add(id) }); return seen };
+        const personIds = uniqueIds('persons'), tripIds = uniqueIds('trips');
+        uniqueIds('transactions'); uniqueIds('tripMembers'); uniqueIds('tripExpenses'); uniqueIds('settings', 'key');
+        data.persons.forEach((p, i) => { if (!p || typeof p !== 'object' || Array.isArray(p)) return; if (typeof p.name !== 'string' || !p.name.trim()) errors.push(`persons[${i}].name must be a non-empty string.`); for (const field of ['mobile', 'relation', 'notes']) if (p[field] !== undefined && typeof p[field] !== 'string') errors.push(`persons[${i}].${field} must be text.`) });
+        data.transactions.forEach((t, i) => { if (!t || typeof t !== 'object' || Array.isArray(t)) return; if (!personIds.has(t.personId)) errors.push(`transactions[${i}] references missing person "${t.personId}".`); if (!['GIVEN', 'RECEIVED'].includes(t.type)) errors.push(`transactions[${i}].type must be GIVEN or RECEIVED.`); if (!Number.isSafeInteger(t.amountPaise) || t.amountPaise <= 0) errors.push(`transactions[${i}].amountPaise must be a positive whole number.`); if (!validDate(t.transactionDate)) errors.push(`transactions[${i}].transactionDate must be a real YYYY-MM-DD date.`); if (typeof t.description !== 'string' || !t.description.trim()) errors.push(`transactions[${i}].description must be non-empty text.`); if (t.repayable !== undefined && typeof t.repayable !== 'boolean') errors.push(`transactions[${i}].repayable must be true or false.`) });
+        data.trips.forEach((trip, i) => { if (!trip || typeof trip !== 'object' || Array.isArray(trip)) return; if (typeof trip.name !== 'string' || !trip.name.trim()) errors.push(`trips[${i}].name must be non-empty text.`); if (!validDate(trip.startDate) || !validDate(trip.endDate) || trip.endDate < trip.startDate) errors.push(`trips[${i}] has invalid trip dates.`); if (!['person', 'family'].includes(trip.splitMode)) errors.push(`trips[${i}].splitMode must be person or family.`) });
+        data.tripMembers.forEach((member, i) => { if (!member || typeof member !== 'object' || Array.isArray(member)) return; if (!tripIds.has(member.tripId)) errors.push(`tripMembers[${i}] references missing trip "${member.tripId}".`); if (typeof member.name !== 'string' || !member.name.trim() || typeof member.family !== 'string' || !member.family.trim()) errors.push(`tripMembers[${i}] needs non-empty name and family.`) });
+        data.tripExpenses.forEach((expense, i) => { if (!expense || typeof expense !== 'object' || Array.isArray(expense)) return; const member = data.tripMembers.find(item => item?.id === expense.paidById); if (!tripIds.has(expense.tripId)) errors.push(`tripExpenses[${i}] references missing trip "${expense.tripId}".`); if (!member || member.tripId !== expense.tripId) errors.push(`tripExpenses[${i}] references a missing payer in its trip.`); if (!validDate(expense.date)) errors.push(`tripExpenses[${i}].date must be a real YYYY-MM-DD date.`); if (!Number.isSafeInteger(expense.amountPaise) || expense.amountPaise <= 0) errors.push(`tripExpenses[${i}].amountPaise must be a positive whole number.`); if (typeof expense.description !== 'string' || !expense.description.trim()) errors.push(`tripExpenses[${i}].description must be non-empty text.`) });
+        data.settings.forEach((setting, i) => { if (setting && typeof setting === 'object' && !Array.isArray(setting) && (typeof setting.key !== 'string' || !setting.key.trim())) errors.push(`settings[${i}].key must be non-empty text.`) });
+        if (errors.length) throw new Error(`Backup validation failed:\n• ${errors.slice(0, 12).join('\n• ')}${errors.length > 12 ? `\n• And ${errors.length - 12} more issue(s).` : ''}`);
+        return Object.fromEntries(STORE_NAMES.map(name => [name, data[name]]));
+      }
+      function recordsMatch(a, b, fields) { return fields.every(field => a?.[field] === b?.[field]) }
+      function mergeSnapshots(current, incoming) {
+        const merged = Object.fromEntries(STORE_NAMES.map(name => [name, current[name].slice()])), skipped = { persons: 0, transactions: 0, trips: 0, tripMembers: 0, tripExpenses: 0, settings: 0 };
+        const currentPeople = new Map(current.persons.map(row => [row.id, row])), acceptedPersonIds = new Set(incoming.persons.filter(row => { const existing = currentPeople.get(row.id); if (!existing) { merged.persons.push(row); return true } if (recordsMatch(existing, row, ['name', 'mobile'])) return true; skipped.persons++; return false }).map(row => row.id));
+        const currentTransactions = new Set(current.transactions.map(row => row.id)); incoming.transactions.forEach(row => { if (currentTransactions.has(row.id) || !acceptedPersonIds.has(row.personId)) { skipped.transactions++; return } merged.transactions.push(row); currentTransactions.add(row.id) });
+        const currentTrips = new Map(current.trips.map(row => [row.id, row])), acceptedTripIds = new Set();
+        incoming.trips.forEach(row => { const existing = currentTrips.get(row.id); if (!existing) { merged.trips.push(row); acceptedTripIds.add(row.id) } else if (recordsMatch(existing, row, ['name', 'startDate', 'endDate', 'splitMode'])) acceptedTripIds.add(row.id); else skipped.trips++ });
+        const currentMembers = new Map(current.tripMembers.map(row => [row.id, row])), acceptedMemberIds = new Set();
+        incoming.tripMembers.forEach(row => { if (!acceptedTripIds.has(row.tripId)) { skipped.tripMembers++; return } const existing = currentMembers.get(row.id); if (!existing) { merged.tripMembers.push(row); acceptedMemberIds.add(row.id) } else if (recordsMatch(existing, row, ['tripId', 'name', 'family'])) acceptedMemberIds.add(row.id); else skipped.tripMembers++ });
+        const currentExpenses = new Set(current.tripExpenses.map(row => row.id));
+        incoming.tripExpenses.forEach(row => { if (!acceptedTripIds.has(row.tripId) || !acceptedMemberIds.has(row.paidById) || currentExpenses.has(row.id)) { skipped.tripExpenses++; return } merged.tripExpenses.push(row); currentExpenses.add(row.id) });
+        const currentSettings = new Set(current.settings.map(row => row.key)); incoming.settings.forEach(row => { if (currentSettings.has(row.key)) { skipped.settings++; return } merged.settings.push(row); currentSettings.add(row.key) });
+        return { data: merged, skipped };
+      }
+      const personById = id => people.find(p => p.id === id); function totals(list = transactions) { return list.reduce((a, t) => { if (t.type === 'GIVEN') { if (t.repayable !== false) a.given += t.amountPaise } else a.received += t.amountPaise; return a }, { given: 0, received: 0 }) } function personTotals(id) { return totals(transactions.filter(t => t.personId === id)) } function balance(id) { const t = personTotals(id); return t.given - t.received } function signedBalance(n) { return n < 0 ? `<span class="red">${money(-n)} credit</span>` : money(n) }
+      function txRow(t, actions = true) { const p = personById(t.personId); return `<tr><td>${dateFmt(t.transactionDate)}</td><td>${esc(p?.name || 'Unknown person')}</td><td><span class="type-pill ${t.type === 'GIVEN' ? 'given' : 'received'}">${t.type === 'GIVEN' ? 'Given' : 'Received'}</span></td><td>${esc(t.description)}${t.eventName ? `<br><small style="color:var(--green)">${esc(t.eventName)}${t.category ? ' · ' + esc(t.category) : ''}</small>` : ''}${t.type === 'GIVEN' && t.repayable === false ? '<br><small style="color:var(--muted)">Non-repayable / gift</small>' : ''}</td><td>${esc(t.paidBy || '—')}${t.behalfOf ? `<br><small style="color:var(--muted)">On behalf of: ${esc(t.behalfOf)}</small>` : ''}<br><small style="color:var(--muted)">${esc(t.paymentMode || '')}</small></td><td class="amount ${t.type === 'RECEIVED' ? 'green' : ''}">${t.type === 'GIVEN' ? '−' : '+'}${money(t.amountPaise)}</td>${actions ? `<td><button class="btn small" data-edit-tx="${t.id}">Edit</button> <button class="btn small danger" data-delete-tx="${t.id}">×</button></td>` : ''}</tr>` }
+      function tableFor(list, actions = true) { if (!list.length) return `<div class="empty"><div class="emoji">🧾</div>No transactions yet. Add your first entry to get started.</div>`; return `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Person</th><th>Type</th><th>Description</th><th>By / Method</th><th>Amount</th>${actions ? '<th>Actions</th>' : ''}</tr></thead><tbody>${list.map(t => txRow(t, actions)).join('')}</tbody></table></div>` }
+      function renderPersonRows(target, list) { $(target).innerHTML = list.length ? list.map(p => { const n = balance(p.id), t = personTotals(p.id); return `<div class="person-row" data-open-person="${p.id}"><div class="avatar">${esc(p.name.trim().split(/\s+/).slice(0, 2).map(x => x[0]).join('').toUpperCase())}</div><div class="person-meta"><strong>${esc(p.name)}</strong><small>${esc(p.mobile || p.relation || 'Personal ledger')} · ${transactions.filter(t => t.personId === p.id).length} entries</small></div><div class="balance ${n < 0 ? 'green' : ''}">${money(Math.abs(n))}<small>${n < 0 ? 'Credit balance' : 'Due'}</small></div></div>` }).join('') : `<div class="empty"><div class="emoji">♙</div>No people added yet.<br><button class="btn primary" style="margin-top:12px" data-open-person-modal>Add your first person</button></div>` }
+      function render() { const t = totals(); $('totalGiven').textContent = money(t.given); $('totalReceived').textContent = money(t.received); $('totalBalance').textContent = money(t.given - t.received); $('peopleDue').textContent = people.filter(p => balance(p.id) > 0).length; const q = $('personSearch').value.trim().toLowerCase(); renderPersonRows('dashboardPeople', people.filter(p => `${p.name} ${p.mobile || ''}`.toLowerCase().includes(q)).sort((a, b) => balance(b.id) - balance(a.id)).slice(0, 7)); renderPersonRows('allPeopleList', people.filter(p => `${p.name} ${p.mobile || ''}`.toLowerCase().includes(($('allPersonSearch').value || '').trim().toLowerCase())).sort((a, b) => a.name.localeCompare(b.name))); const recent = [...transactions].sort((a, b) => b.transactionDate.localeCompare(a.transactionDate) || b.createdAt.localeCompare(a.createdAt)).slice(0, 5); $('recentTransactions').innerHTML = recent.length ? recent.map(t => `<div class="person-row" style="cursor:default"><div class="avatar">${t.type === 'GIVEN' ? '↗' : '↙'}</div><div class="person-meta"><strong>${esc(t.description)}</strong><small>${esc(personById(t.personId)?.name || 'Unknown')} · ${dateFmt(t.transactionDate)}</small></div><div class="balance ${t.type === 'RECEIVED' ? 'green' : ''}">${t.type === 'GIVEN' ? '−' : '+'}${money(t.amountPaise)}<small>${t.type === 'GIVEN' ? 'Given' : 'Received'}</small></div></div>`).join('') : `<div class="empty"><div class="emoji">↔</div>Recent transactions will appear here.</div>`; const search = ($('txSearch').value || '').toLowerCase(), type = $('txType').value, month = $('txMonth').value; const filtered = [...transactions].filter(t => { const p = personById(t.personId); return (!search || `${p?.name || ''} ${t.description} ${t.paidBy || ''}`.toLowerCase().includes(search)) && (type === 'ALL' || t.type === type) && (!month || t.transactionDate.startsWith(month)) }).sort((a, b) => b.transactionDate.localeCompare(a.transactionDate) || b.createdAt.localeCompare(a.createdAt)); $('allTransactionsTable').innerHTML = tableFor(filtered); const r = totals(); $('reportSummary').innerHTML = `<div class="ledger-summary"><div class="mini-stat"><small>Total given</small><strong>${money(r.given)}</strong></div><div class="mini-stat"><small>Total received</small><strong class="green">${money(r.received)}</strong></div><div class="mini-stat"><small>Net balance</small><strong>${money(r.given - r.received)}</strong></div></div><p class="sub">${people.length} people · ${transactions.length} total transactions</p>`; if (activePersonId) renderLedger(); populatePersonSelect() }
+      function populatePersonSelect() { const val = $('txPerson').value; $('txPerson').innerHTML = '<option value="">Choose a person…</option>' + people.slice().sort((a, b) => a.name.localeCompare(b.name)).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join(''); if (people.some(p => p.id === val)) $('txPerson').value = val }
+      function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === id)); document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.page === id)); if (id === 'ledgerPage') document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active')); if (id === 'transactionsPage') render(); if (id === 'personsPage') render(); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+      function openModal(id) { $(id).classList.add('show') } function closeModal(id) { $(id).classList.remove('show') }
+      function openPersonForm(p = null) { $('personForm').reset(); $('personId').value = p?.id || ''; $('personModalTitle').textContent = p ? 'Edit person' : 'Add a person'; if (p) { $('personName').value = p.name; $('personMobile').value = p.mobile || ''; $('personRelation').value = p.relation || 'Other'; $('personNotes').value = p.notes || '' } openModal('personModal'); setTimeout(() => $('personName').focus(), 100) }
+      function openTxForm(t = null, personId = null) { if (!people.length) { showToast('Add a person first'); openPersonForm(); return } $('transactionForm').reset(); $('txId').value = t?.id || ''; $('txModalTitle').textContent = t ? 'Edit transaction' : 'Add transaction'; $('transactionType').value = t?.type || 'GIVEN'; document.querySelectorAll('[data-txtype]').forEach(b => b.classList.toggle('active', b.dataset.txtype === (t?.type || 'GIVEN'))); $('txDate').value = t?.transactionDate || today(); $('txAmount').value = t ? (t.amountPaise / 100).toFixed(2) : ''; $('txPerson').value = t?.personId || personId || ''; $('txDescription').value = t?.description || ''; $('txPaidBy').value = t?.paidBy || 'Somnath'; $('txMode').value = t?.paymentMode || 'Cash'; $('txNotes').value = t?.notes || ''; populatePersonSelect(); $('txPerson').value = t?.personId || personId || ''; openModal('transactionModal') }
+      function renderLedger() { const p = personById(activePersonId); if (!p) { showPage('personsPage'); return } const t = personTotals(p.id); $('ledgerPersonHeading').innerHTML = `<div class="person-detail-head"><div class="avatar">${esc(p.name[0].toUpperCase())}</div><div><h2 style="font-size:22px;margin:0">${esc(p.name)}</h2><p class="sub">${esc(p.mobile || p.relation || 'Personal ledger')}</p></div></div>`; $('ledgerGiven').textContent = money(t.given); $('ledgerReceived').textContent = money(t.received); $('ledgerBalance').textContent = money(t.given - t.received); const list = transactions.filter(x => x.personId === p.id).sort((a, b) => b.transactionDate.localeCompare(a.transactionDate) || b.createdAt.localeCompare(a.createdAt)); $('ledgerTransactions').innerHTML = tableFor(list) }
+      $('personForm').addEventListener('submit', async e => { e.preventDefault(); const id = $('personId').value; const p = { id: id || uid(), name: $('personName').value.trim(), mobile: $('personMobile').value.trim(), relation: $('personRelation').value, notes: $('personNotes').value.trim(), createdAt: id ? (personById(id)?.createdAt || new Date().toISOString()) : new Date().toISOString() }; if (!p.name) return; await put('persons', p); await refresh(); closeModal('personModal'); showToast(id ? 'Person updated' : 'Person added'); if (!id && returnPage === 'transactionModal') openTxForm(null, p.id) });
+      $('transactionForm').addEventListener('submit', async e => { e.preventDefault(); const amount = Number($('txAmount').value); if (!Number.isFinite(amount) || amount <= 0) { showToast('Enter a valid amount'); return } const id = $('txId').value, old = transactions.find(t => t.id === id); const t = { id: id || uid(), personId: $('txPerson').value, transactionDate: $('txDate').value, type: $('transactionType').value, amountPaise: paise(amount), description: $('txDescription').value.trim(), paidBy: $('txPaidBy').value.trim(), behalfOf: $('txBehalfOf')?.value.trim() || '', eventName: $('txEventName')?.value.trim() || '', category: $('txCategory')?.value || 'Other', repayable: $('transactionType').value === 'GIVEN' ? ($('txRepayable')?.checked ?? true) : true, paymentMode: $('txMode').value, notes: $('txNotes').value.trim(), createdAt: old?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() }; if (!t.personId || !t.description) { showToast('Complete required fields'); return } if (t.eventName && transactions.some(x => x.id !== t.id && x.personId === t.personId && x.transactionDate === t.transactionDate && x.amountPaise === t.amountPaise && x.description.toLowerCase() === t.description.toLowerCase() && x.eventName === t.eventName) && !confirm('A similar entry already exists for this person, date, amount and event. Save another anyway?')) return; await put('transactions', t); await refresh(); closeModal('transactionModal'); showToast(id ? 'Transaction updated' : 'Transaction saved') });
+      async function refresh() { [people, transactions] = await Promise.all([getAll('persons'), getAll('transactions')]); render(); showBackupStatus(await getAll('settings')) }
+      function download(name, content, type) { let url; try { const blob = new Blob([content], { type }); url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); return true } catch (error) { if (url) URL.revokeObjectURL(url); throw new Error(`Could not start the download: ${error.message || error}`) } }
+      function makeBackup(snapshot, exportedAt = new Date().toISOString()) { return { format: 'personal-ledger-backup', schemaVersion: BACKUP_SCHEMA_VERSION, appVersion: APP_VERSION, exportedAt, data: Object.fromEntries(STORE_NAMES.map(name => [name, snapshot[name] || []])) } }
+      async function exportJson({ recordBackup = true, notify = true } = {}) { try { const snapshot = await readAllData(), exportedAt = new Date().toISOString(), preferences = recordBackup ? stampBackupPreference(snapshot, exportedAt) : null, json = JSON.stringify(makeBackup(snapshot, exportedAt), null, 2); download(`personal-ledger-backup-${today()}.json`, json, 'application/json'); if (recordBackup) { await savePreferences(preferences); showBackupStatus(await getAll('settings')) } if (notify) showToast('Complete JSON backup exported'); return json } catch (error) { console.error('JSON backup export failed:', error); showToast(`JSON backup failed: ${error.message || error}`); return null } }
+      // Add event-ledger fields to the existing transaction form without changing stored records.
+      const txGrid = $('txNotes').closest('.form-grid'); const eventFields = document.createElement('div'); eventFields.className = 'form-group full'; eventFields.innerHTML = '<label for="txEventName">Event / marriage account</label><input class="field" id="txEventName" maxlength="120" placeholder="e.g. Deshmukh Wedding 2026"><div class="field-hint">Use the same event name for all related expenses and repayments.</div><div class="form-grid" style="margin-top:10px"><div class="form-group"><label for="txCategory">Expense category</label><select class="field" id="txCategory"><option>Sakharpuda / Engagement</option><option>Gold / Jewellery</option><option>Maanpan</option><option>Clothes</option><option>Mehendi</option><option>Catering</option><option>Wedding ceremony</option><option>Travel</option><option>Gift / Non-repayable</option><option>Other</option></select></div><div class="form-group"><label for="txBehalfOf">On behalf of (repayment)</label><input class="field" id="txBehalfOf" maxlength="100" placeholder="e.g. Deshmukh (optional)"></div><div class="form-group full" id="repayableGroup"><label style="display:flex;align-items:center;gap:9px;color:var(--text);font-size:13px"><input type="checkbox" id="txRepayable" checked> Include this expense in amount due (repayable)</label><div class="field-hint">Uncheck for a gift or expense you do not expect to recover.</div></div></div>';
+      txGrid.insertBefore(eventFields, txGrid.querySelector('.form-group.full:last-child'));
+      const txTypeLabel = document.createElement('div'); txTypeLabel.className = 'field-hint'; txTypeLabel.id = 'txTypeHint'; $('txPaidBy').closest('.form-group').querySelector('label').textContent = 'Paid by / received from'; $('txPaidBy').closest('.form-group').appendChild(txTypeLabel);
+      function syncTxExtras() { const given = $('transactionType').value === 'GIVEN'; $('repayableGroup').classList.toggle('hidden', !given); $('txCategory').closest('.form-group').querySelector('label').textContent = given ? 'Expense category' : 'Related category'; $('txBehalfOf').closest('.form-group').querySelector('label').textContent = given ? 'Expense for / beneficiary (optional)' : 'On behalf of (repayment)'; txTypeLabel.textContent = given ? 'Who paid this expense?' : 'Who actually handed over the repayment?'; }
+      function renderEvents() { const names = [...new Set(transactions.map(t => (t.eventName || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b)); const list = $('eventsList'); if (!names.length) { list.innerHTML = '<div class="empty"><div class="emoji">💍</div>No event accounts yet.<br>Start by adding an entry and entering an event name such as “Deshmukh Wedding 2026”.</div>'; return } list.innerHTML = names.map(name => { const rows = transactions.filter(t => (t.eventName || '').trim() === name); const given = rows.filter(t => t.type === 'GIVEN' && t.repayable !== false).reduce((s, t) => s + t.amountPaise, 0), received = rows.filter(t => t.type === 'RECEIVED').reduce((s, t) => s + t.amountPaise, 0), spent = rows.filter(t => t.type === 'GIVEN').reduce((s, t) => s + t.amountPaise, 0); return `<div class="event-card"><div class="event-card-head"><div><h3>${esc(name)}</h3><div class="event-meta">${rows.length} entries · ${new Set(rows.map(t => t.personId)).size} account(s)</div></div><button class="btn small" data-event-open="${esc(name)}">View entries</button></div><div class="event-stats"><div><small>Total expenses</small><strong>${money(spent)}</strong></div><div><small>Repayments received</small><strong class="green">${money(received)}</strong></div><div><small>Amount still due</small><strong class="${given - received > 0 ? 'red' : 'green'}">${money(given - received)}</strong></div></div><div class="event-meta" style="margin-top:10px">Only repayable expenses count toward amount due. Gifts/non-repayable expenses are shown in total expenses but excluded from balance.</div></div>` }).join('') }
+      document.querySelectorAll('[data-txtype]').forEach(b => b.addEventListener('click', syncTxExtras)); document.addEventListener('click', e => { if (e.target.closest('[data-txtype]')) syncTxExtras() }); $('eventAddEntryBtn').onclick = () => openTxForm(); $('txCategory').addEventListener('change', () => { if ($('txCategory').value === 'Gift / Non-repayable') $('txRepayable').checked = false });
+      document.addEventListener('click', e => { const b = e.target.closest('[data-event-open]'); if (!b) return; activeEventName = b.dataset.eventOpen; showPage('transactionsPage'); $('txSearch').value = activeEventName; render() });
+      const eventStyle = document.createElement('style'); eventStyle.textContent = '.event-card{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--surface);margin-bottom:10px}.event-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.event-card h3{margin:0 0 4px;font-size:16px}.event-meta{font-size:12px;color:var(--muted)}.event-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}.event-stats div{background:var(--surface2);padding:10px;border-radius:10px}.event-stats small{display:block;color:var(--muted);font-size:11px}.event-stats strong{display:block;margin-top:4px;font-size:15px}.field-hint{font-size:11px;color:var(--muted);margin-top:3px}@media(max-width:520px){.event-stats{grid-template-columns:1fr 1fr}.event-stats div:last-child{grid-column:1/-1}}'; document.head.appendChild(eventStyle);
+      const originalRender = render; render = function () { originalRender(); renderEvents(); if (activeEventName && $('transactionsPage').classList.contains('active')) { $('allTransactionsTable').innerHTML = tableFor(transactions.filter(t => (t.eventName || '').trim() === activeEventName).sort((a, b) => b.transactionDate.localeCompare(a.transactionDate) || b.createdAt.localeCompare(a.createdAt))) } }; const originalOpenTxForm = openTxForm; openTxForm = function (t = null, personId = null) { originalOpenTxForm(t, personId); if ($('transactionModal').classList.contains('show')) { $('txEventName').value = t?.eventName || activeEventName || ''; $('txCategory').value = t?.category || 'Other'; $('txBehalfOf').value = t?.behalfOf || ''; $('txRepayable').checked = t?.repayable !== false; syncTxExtras() } };
+      // Seed a realistic empty-state experience only: no demo financial records are inserted.
+      $('quickAddBtn').onclick = () => openTxForm(); $('dashboardAddBtn').onclick = () => openTxForm(); $('transactionsAddBtn').onclick = () => openTxForm(); $('ledgerAddBtn').onclick = () => openTxForm(null, activePersonId); $('addPersonBtn').onclick = () => openPersonForm(); $('personsAddBtn').onclick = () => openPersonForm(); $('allPeopleBtn').onclick = () => showPage('personsPage'); $('viewTransactionsBtn').onclick = () => showPage('transactionsPage'); $('backupBtn').onclick = exportJson; $('exportJsonBtn').onclick = exportJson; $('addPersonFromTx').onclick = () => { returnPage = 'transactionModal'; closeModal('transactionModal'); openPersonForm() }; $('ledgerBack').onclick = () => showPage('personsPage'); $('personSearch').addEventListener('input', render); $('allPersonSearch').addEventListener('input', render);['txSearch', 'txType', 'txMonth'].forEach(id => $(id).addEventListener('input', render)); document.querySelectorAll('.navbtn').forEach(b => b.onclick = () => { closeMoreMenu(); showPage(b.dataset.page) }); $('moreActionsBtn')?.addEventListener('click', () => toggleMoreMenu()); document.addEventListener('click', e => { const menu = $('moreActionsMenu'); const btn = $('moreActionsBtn'); if (menu && !menu.classList.contains('hidden') && !e.target.closest('#moreActionsMenu') && !e.target.closest('#moreActionsBtn')) closeMoreMenu(); if (e.target.closest('[data-more-action]')) { const action = e.target.closest('[data-more-action]').dataset.moreAction; closeMoreMenu(); switch (action) { case 'add-person': openPersonForm(); break; case 'add-entry': openTxForm(); break; case 'backup': exportJson(); break; case 'people': showPage('personsPage'); break; case 'transactions': showPage('transactionsPage'); break; default: break; } } }); document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => closeModal(b.dataset.close)); document.querySelectorAll('.modal-backdrop').forEach(m => m.addEventListener('click', e => { if (e.target === m) closeModal(m.id) })); document.querySelectorAll('[data-txtype]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-txtype]').forEach(x => x.classList.toggle('active', x === b)); $('transactionType').value = b.dataset.txtype }); document.addEventListener('click', async e => { const open = e.target.closest('[data-open-person]'); if (open) { activePersonId = open.dataset.openPerson; renderLedger(); showPage('ledgerPage'); return } if (e.target.closest('[data-open-person-modal]')) { openPersonForm(); return } const edit = e.target.closest('[data-edit-tx]'); if (edit) { const t = transactions.find(x => x.id === edit.dataset.editTx); if (t) openTxForm(t); return } const del = e.target.closest('[data-delete-tx]'); if (del) { const t = transactions.find(x => x.id === del.dataset.deleteTx); if (t && confirm(`Delete this ${t.type.toLowerCase()} entry for ${money(t.amountPaise)}?`)) { await remove('transactions', t.id); await refresh(); showToast('Transaction deleted') } } });
+      async function prepareImport(file) {
+        try {
+          const parsed = JSON.parse(await file.text());
+          pendingImport = validateBackup(parsed);
+          $('importSummary').textContent = `Validated backup: ${pendingImport.persons.length} people, ${pendingImport.transactions.length} transactions, ${pendingImport.trips.length} trips, ${pendingImport.tripMembers.length} trip participants, ${pendingImport.tripExpenses.length} trip expenses and ${pendingImport.settings.length} settings.`;
+          openModal('importChoiceModal');
+        } catch (error) {
+          pendingImport = null;
+          alert(`Could not import this JSON file.\n\n${error.message || error}`);
+        } finally {
+          $('importFile').value = '';
+        }
+      }
+      async function applyImport(mode) {
+        if (!pendingImport || !['merge', 'replace'].includes(mode)) return;
+        const buttons = ['mergeImportBtn', 'replaceImportBtn', 'cancelImportBtn', 'cancelImportIcon'];
+        buttons.forEach(id => $(id).disabled = true);
+        try {
+          const current = await readAllData();
+          const exportedAt = new Date().toISOString();
+          const preImportPreferences = stampBackupPreference(current, exportedAt);
+          const preImportBackup = JSON.stringify(makeBackup(current, exportedAt), null, 2);
+          download(`personal-ledger-pre-import-backup-${today()}.json`, preImportBackup, 'application/json');
+          await savePreferences(preImportPreferences);
+          const latest = await readAllData();
+          let next, skipped = {};
+          if (mode === 'merge') {
+            ({ data: next, skipped } = mergeSnapshots(latest, pendingImport));
+          } else {
+            next = Object.fromEntries(STORE_NAMES.map(name => [name, pendingImport[name].slice()]));
+          }
+          const importedPreferences = next.settings.find(row => row.key === 'appPreferences');
+          const preferenceValue = importedPreferences?.value && typeof importedPreferences.value === 'object' && !Array.isArray(importedPreferences.value) ? importedPreferences.value : defaultPreferences();
+          if (importedPreferences) {
+            importedPreferences.value = { ...defaultPreferences(), ...preferenceValue, lastBackupAt: exportedAt };
+          } else {
+            next.settings.push({ key: 'appPreferences', value: { ...defaultPreferences(), lastBackupAt: exportedAt }, updatedAt: exportedAt });
+          }
+          await writeSnapshot(next, mode === 'replace');
+          pendingImport = null;
+          closeModal('importChoiceModal');
+          activePersonId = null;
+          activeEventName = null;
+          await refresh();
+          await loadTrips();
+          const skippedCount = Object.values(skipped).reduce((sum, count) => sum + count, 0);
+          showToast(mode === 'replace' ? 'All application data imported' : `Data merged${skippedCount ? `; ${skippedCount} duplicate or conflicting records skipped` : ''}`);
+        } catch (error) {
+          alert(`Import failed. The import was rolled back and existing records were preserved.\n\n${error.message || error}`);
+        } finally {
+          buttons.forEach(id => $(id).disabled = false);
+        }
+      }
+      function cancelImport() { pendingImport = null; closeModal('importChoiceModal') }
+      $('importFile').addEventListener('change', e => { const file = e.target.files?.[0]; if (file) prepareImport(file) });
+      $('mergeImportBtn').onclick = () => applyImport('merge');
+      $('replaceImportBtn').onclick = () => applyImport('replace');
+      $('cancelImportBtn').onclick = cancelImport;
+      $('cancelImportIcon').onclick = cancelImport;
+      $('importChoiceModal').addEventListener('click', e => { if (e.target === $('importChoiceModal')) cancelImport() });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('importChoiceModal').classList.contains('show')) cancelImport() });
+      $('clearDataBtn').onclick = async () => { if (!confirm('Permanently delete all people and transactions from this browser? Export a backup first if needed.')) return; for (const t of transactions) await remove('transactions', t.id); for (const p of people) await remove('persons', p.id); activePersonId = null; await refresh(); showToast('Local data cleared') };
+      $('csvBtn').onclick = () => { const rows = [['Date', 'Person', 'Type', 'Description', 'Amount INR', 'Paid By', 'Payment Method', 'Notes']]; transactions.slice().sort((a, b) => a.transactionDate.localeCompare(b.transactionDate)).forEach(t => rows.push([t.transactionDate, personById(t.personId)?.name || '', t.type, t.description, (t.amountPaise / 100).toFixed(2), t.paidBy || '', t.paymentMode || '', t.notes || ''])); const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); download(`personal-ledger-${today()}.csv`, csv, 'text/csv;charset=utf-8') }; $('printReportBtn').onclick = () => {
+        const t = totals(); const w = window.open('', '_blank'); if (!w) { showToast('Allow pop-ups to print report'); return } w.document.write(`<html><head><title>Personal Ledger Report</title><style>
+:root {
+  color-scheme: light;
+  --bg: #f5f8f7;
+  --surface: #ffffff;
+  --surface-soft: #edf8f4;
+  --surface-muted: #f3f7f5;
+  --text: #172b25;
+  --muted: #687a73;
+  --border: #e1eae5;
+  --primary: #087f5b;
+  --primary-strong: #066649;
+  --primary-soft: #e6f6ef;
+  --success: #16845b;
+  --warning: #b7791f;
+  --danger: #c03945;
+  --info: #2878b5;
+  --shadow: 0 8px 24px rgba(8, 127, 91, 0.08);
+  --shadow-soft: 0 10px 24px rgba(23, 43, 37, 0.06);
+  --radius: 18px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:none;background:none}img{max-width:100%;display:block}a{text-decoration:none;color:inherit}.app{min-height:100vh;background:var(--bg);padding:0 0 88px}.topbar{background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px clamp(14px,4vw,38px);display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:42px;height:42px;background:linear-gradient(135deg,var(--primary),var(--primary-strong));color:#fff;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:800;box-shadow:var(--shadow-soft)}.brand h1{font-size:1.1rem;line-height:1.2;margin:0;letter-spacing:-.02em}.brand p{margin:4px 0 0;color:var(--muted);font-size:.75rem}.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:all .15s ease;box-shadow:0 1px 0 rgba(0,0,0,.01)}.btn:hover,.btn:focus-visible{transform:translateY(-1px);border-color:var(--primary);box-shadow:0 8px 18px rgba(8,127,91,.08)}.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn.primary:hover,.btn.primary:focus-visible{background:var(--primary-strong);border-color:var(--primary-strong)}.btn.soft{background:var(--primary-soft);color:var(--primary-strong);border-color:transparent}.btn.danger{background:rgba(192,57,69,.06);color:var(--danger);border-color:rgba(192,57,69,.12)}.btn.small{padding:7px 10px;border-radius:10px;font-size:12px}.btn-more{display:none}.wrap{max-width:1200px;margin:auto;padding:20px clamp(14px,3vw,28px)}.welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:22px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}h2{font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.2;margin:5px 0 8px;letter-spacing:-.04em}.sub{color:var(--muted);margin:0}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}.stat,.panel,.person-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}.stat{padding:18px}.stat-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;font-weight:700}.stat-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--surface-soft);font-size:17px;color:var(--primary)}.stat-value{font-size:clamp(1.3rem,2.5vw,2rem);font-weight:800;letter-spacing:-.04em;margin:10px 0 3px;font-variant-numeric:tabular-nums}.stat-note{font-size:12px;color:var(--muted)}.green{color:var(--success)}.red{color:var(--danger)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h3{font-size:1.05rem;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.content-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:18px}.panel{padding:20px;min-width:0}.search-row{display:flex;gap:9px;margin-bottom:14px}.field{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);outline:none;min-width:0;transition:border-color .15s ease, box-shadow .15s ease}.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,127,91,.12)}.person-list{display:grid;gap:9px}.person-row{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s ease;background:linear-gradient(180deg,#fff,#fcfffd)}.person-row:hover{border-color:var(--primary);background:var(--surface-soft)}.avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary-strong);font-weight:800;flex-shrink:0}.person-meta{min-width:0;flex:1}.person-meta strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person-meta small{color:var(--muted)}.balance{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.balance small{display:block;color:var(--muted);font-weight:600;font-size:11px}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}table{width:100%;border-collapse:collapse;min-width:590px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--surface-muted)}td{font-size:13px}tbody tr:last-child td{border-bottom:0}.amount{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.type-pill{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}.type-pill.given{background:#fff0df;color:#9a570b}.type-pill.received{background:#dff5ed;color:#086b53}.empty{text-align:center;padding:28px 12px;color:var(--muted)}.empty .emoji{font-size:28px;margin-bottom:8px}.bottomnav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;padding:8px clamp(8px,3vw,18px) calc(8px + env(safe-area-inset-bottom));z-index:10}.navbtn{border:0;background:transparent;color:var(--muted);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;min-width:0;flex:1 1 0;max-width:100px}.navbtn span{font-size:16px;line-height:1}.navbtn.active{background:var(--primary-soft);color:var(--primary-strong);box-shadow:inset 0 0 0 1px rgba(8,127,91,.05)}.page{display:none}.page.active{display:block}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.filters .field{width:auto;flex:1;min-width:140px}.modal-backdrop{position:fixed;inset:0;background:rgba(8,19,15,.45);z-index:30;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.show{display:flex}.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 70px rgba(0,0,0,.18)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}.modal-head h3{margin:0;font-size:1.1rem}.icon-btn{border:0;background:var(--surface-muted);color:var(--text);border-radius:10px;width:34px;height:34px;font-size:19px}.modal-body{padding:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-group{display:flex;flex-direction:column;gap:6px}.form-group.full{grid-column:1/-1}.form-group label{font-size:12px;font-weight:800;color:var(--muted)}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;flex-wrap:wrap}.segmented{display:flex;gap:5px;padding:4px;background:var(--surface-muted);border-radius:11px}.segmented button{flex:1;border:0;border-radius:8px;padding:9px;background:transparent;color:var(--muted);font-weight:800}.segmented button.active{background:var(--primary);color:#fff}.toast{position:fixed;top:82px;right:18px;background:rgba(23,43,37,.96);color:#fff;padding:12px 16px;border-radius:12px;z-index:40;box-shadow:var(--shadow);display:none}.toast.show{display:block}.ledger-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.mini-stat{background:var(--surface-muted);border-radius:12px;padding:13px}.mini-stat small{display:block;color:var(--muted);font-size:11px}.mini-stat strong{font-size:1.1rem;display:block;margin-top:5px}.page-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}.back{border:1px solid var(--border);background:var(--surface);border-radius:10px;width:40px;height:40px;color:var(--text);font-size:18px}.person-detail-head{display:flex;align-items:center;gap:12px}.person-detail-head .avatar{width:50px;height:50px}.notice{padding:12px 14px;border-radius:10px;background:var(--surface-soft);color:var(--muted);font-size:12px;margin-top:16px}.hidden{display:none!important}.more-menu{position:absolute;top:58px;right:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);min-width:180px;padding:8px;display:flex;flex-direction:column;gap:6px;z-index:25}.more-menu button{width:100%;text-align:left;padding:10px 12px;border-radius:10px;background:transparent;color:var(--text);font-weight:600}.more-menu button:hover{background:var(--surface-muted)}@media (max-width: 850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}.welcome{align-items:flex-start;flex-direction:column}.welcome .btn{width:100%}.wrap{padding-top:20px}}@media (max-width: 520px){.topbar{padding:12px 14px}.brand h1{font-size:1rem}.brand p{font-size:.68rem}.top-actions{gap:6px}.btn{padding:10px 12px}.btn.primary,.btn:not(.btn-small){min-height:44px}.btn-more{display:inline-flex}.top-actions .btn:not(.btn-more):not(.primary){display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{padding:14px}.stat-value{font-size:1.15rem}.navbtn{padding:8px 4px;font-size:9px}.navbtn span{font-size:15px}.bottomnav{gap:4px;padding-inline:8px}.form-grid{grid-template-columns:1fr}.filters{display:grid;grid-template-columns:1fr}.filters .field{min-width:0}.search-row{display:grid;grid-template-columns:1fr auto}.table-wrap{border-radius:10px}.modal{border-radius:16px}.modal-body{padding:16px}.toast{top:70px;right:10px;left:10px;max-width:none}}@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto !important;transition:none !important}}
+</style></head><body><h1>Personal Udhar & Payment Manager</h1><p>Report generated ${dateFmt(today())}</p><div class="totals"><div>Total given: <b>${money(t.given)}</b></div><div>Total received: <b>${money(t.received)}</b></div><div>Net balance: <b>${money(t.given - t.received)}</b></div></div>${tableFor([...transactions].sort((a, b) => a.transactionDate.localeCompare(b.transactionDate)), false)}<\/body><\/html>`); w.document.close(); w.focus(); w.print()
+      };
+      // Temporary short-trip planner. Trip data uses separate IndexedDB stores and never affects permanent ledgers.
+      let tripRecords = [], tripMembers = [], tripExpenses = [], activeTripId = null;
+      const tripGet = async name => getAll(name), tripMoney = n => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format((n || 0) / 100);
+      async function loadTrips() { [tripRecords, tripMembers, tripExpenses] = await Promise.all([tripGet('trips'), tripGet('tripMembers'), tripGet('tripExpenses')]); renderTripList(); if (activeTripId && tripRecords.some(t => t.id === activeTripId)) renderTripWorkspace(); else { $('tripWorkspace').classList.add('hidden'); activeTripId = null } }
+      function tripMembersFor(id) { return tripMembers.filter(m => m.tripId === id) } function tripExpensesFor(id) { return tripExpenses.filter(x => x.tripId === id).sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt)) }
+      function renderTripList() { const el = $('tripList'); const rows = tripRecords.filter(t => !t.finishedAt).sort((a, b) => b.startDate.localeCompare(a.startDate)); if (!rows.length) { el.innerHTML = '<div class="empty"><div class="emoji">🧳</div>No active trips yet.<br>Create a trip and add participants to start tracking.</div>'; return } el.innerHTML = rows.map(t => `<div class="person-card" style="padding:14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><strong>${esc(t.name)}</strong><div class="field-hint">${dateFmt(t.startDate)} – ${dateFmt(t.endDate)} · ${tripMembersFor(t.id).length} participants</div><div class="field-hint">Split: ${t.splitMode === 'family' ? 'Family-wise' : 'Person-wise'} · ${tripExpensesFor(t.id).length} expenses</div></div><button class="btn primary small" data-open-trip="${t.id}">Open trip</button></div></div>`).join('') }
+      function renderTripWorkspace() {
+        const trip = tripRecords.find(t => t.id === activeTripId); if (!trip) { $('tripWorkspace').classList.add('hidden'); return } const members = tripMembersFor(trip.id), expenses = tripExpensesFor(trip.id), total = expenses.reduce((s, x) => s + x.amountPaise, 0); $('tripWorkspace').classList.remove('hidden'); $('tripActiveTitle').textContent = trip.name; $('tripActiveMeta').textContent = [dateFmt(trip.startDate), ' – ', dateFmt(trip.endDate), ' · Split ', trip.splitMode === 'family' ? 'by family' : 'by person'].join(''); $('tripTotal').textContent = tripMoney(total); $('tripPeopleCount').textContent = members.length; $('tripFamilyCount').textContent = new Set(members.map(function (m) { return m.family })).size; $('tripExpenseCount').textContent = expenses.length; $('tripExpenseDate').value = today(); $('tripExpensePaidBy').innerHTML = members.map(function (m) { return '<option value="' + esc(m.id) + '">' + esc(m.name) + ' — ' + esc(m.family) + '</option>' }).join('');
+        const familyNames = [...new Set(members.map(m => m.family))]; const shares = {}; if (trip.splitMode === 'family') { const familyShare = Math.floor(total / Math.max(1, familyNames.length)); let rem = total - familyShare * familyNames.length; familyNames.forEach(f => { const familyMembers = members.filter(m => m.family === f); const fShare = familyShare + (rem-- > 0 ? 1 : 0); let pShare = Math.floor(fShare / familyMembers.length), pRem = fShare - pShare * familyMembers.length; familyMembers.forEach(m => shares[m.id] = pShare + (pRem-- > 0 ? 1 : 0)) }) } else { let share = Math.floor(total / Math.max(1, members.length)), rem = total - share * members.length; members.forEach(m => shares[m.id] = share + (rem-- > 0 ? 1 : 0)) }
+        const paid = {}; members.forEach(m => paid[m.id] = 0); expenses.forEach(x => { paid[x.paidById] = (paid[x.paidById] || 0) + x.amountPaise }); const net = {}; members.forEach(m => net[m.id] = (paid[m.id] || 0) - (shares[m.id] || 0)); const famRows = familyNames.map(f => { const ms = members.filter(m => m.family === f); return { family: f, paid: ms.reduce((s, m) => s + (paid[m.id] || 0), 0), share: ms.reduce((s, m) => s + (shares[m.id] || 0), 0), net: ms.reduce((s, m) => s + (net[m.id] || 0), 0) } }); $('tripSettlement').innerHTML = `<h4 style="margin:10px 0">Family-wise summary</h4><div class="table-wrap"><table><thead><tr><th>Family</th><th>Total paid</th><th>Share</th><th>Net settlement</th></tr></thead><tbody>${famRows.map(f => `<tr><td>${esc(f.family)}</td><td>${tripMoney(f.paid)}</td><td>${tripMoney(f.share)}</td><td class="${f.net >= 0 ? 'green' : 'red'}">${f.net >= 0 ? 'Gets back ' : 'Owes '}${tripMoney(Math.abs(f.net))}</td></tr>`).join('')}</tbody></table></div><h4 style="margin:18px 0 10px">Person-wise summary</h4><div class="table-wrap"><table><thead><tr><th>Person</th><th>Family</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody>${members.map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.family)}</td><td>${tripMoney(paid[m.id] || 0)}</td><td>${tripMoney(shares[m.id] || 0)}</td><td class="${net[m.id] >= 0 ? 'green' : 'red'}">${net[m.id] >= 0 ? 'Gets back ' : 'Owes '}${tripMoney(Math.abs(net[m.id] || 0))}</td></tr>`).join('')}</tbody></table></div><div class="notice">“Gets back” means this person paid more than their share; “Owes” means they paid less. Settle transfers between participants using this net summary. Amounts are calculated in paise to avoid floating-point rounding errors.</div>`;
+        $('tripExpenseHistory').innerHTML = expenses.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Purpose</th><th>Category</th><th>Paid by</th><th>Amount</th><th></th></tr></thead><tbody>${expenses.slice().reverse().map(x => `<tr><td>${dateFmt(x.date)}</td><td>${esc(x.description)}</td><td>${esc(x.category)}</td><td>${esc(members.find(m => m.id === x.paidById)?.name || 'Removed participant')}</td><td>${tripMoney(x.amountPaise)}</td><td><button class="btn small danger" data-delete-trip-expense="${x.id}">Delete</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">No expenses recorded yet.</div>'
+      }
+      function tripCsv(trip) { const ms = tripMembersFor(trip.id), xs = tripExpensesFor(trip.id), total = xs.reduce((s, x) => s + x.amountPaise, 0); const familyCount = new Set(ms.map(m => m.family)).size; const shareMap = {}; if (trip.splitMode === 'family') { const fams = [...new Set(ms.map(m => m.family))]; let rem = total % Math.max(1, fams.length); const fs = {}; fams.forEach(f => fs[f] = Math.floor(total / Math.max(1, fams.length)) + (rem-- > 0 ? 1 : 0)); fams.forEach(f => { const arr = ms.filter(m => m.family === f); let r = fs[f] % arr.length; arr.forEach(m => shareMap[m.id] = Math.floor(fs[f] / arr.length) + (r-- > 0 ? 1 : 0)) }) } else { let r = total % Math.max(1, ms.length); ms.forEach(m => shareMap[m.id] = Math.floor(total / Math.max(1, ms.length)) + (r-- > 0 ? 1 : 0)) } const paid = {}; ms.forEach(m => paid[m.id] = 0); xs.forEach(x => paid[x.paidById] = (paid[x.paidById] || 0) + x.amountPaise); const lines = [['Trip', trip.name], ['Dates', `${trip.startDate} to ${trip.endDate}`], ['Split mode', trip.splitMode], [], ['EXPENSES'], ['Date', 'Purpose', 'Category', 'Paid by', 'Family', 'Amount INR']]; xs.forEach(x => { const m = ms.find(z => z.id === x.paidById); lines.push([x.date, x.description, x.category, m?.name || 'Removed participant', m?.family || '', (x.amountPaise / 100).toFixed(2)]) }); lines.push([], ['PERSON SETTLEMENT'], ['Person', 'Family', 'Paid INR', 'Share INR', 'Net INR', 'Settlement']); ms.forEach(m => { const n = (paid[m.id] || 0) - (shareMap[m.id] || 0); lines.push([m.name, m.family, ((paid[m.id] || 0) / 100).toFixed(2), ((shareMap[m.id] || 0) / 100).toFixed(2), (n / 100).toFixed(2), n >= 0 ? 'Gets back' : 'Owes']) }); lines.push([], ['FAMILY SETTLEMENT'], ['Family', 'Paid INR', 'Share INR', 'Net INR', 'Settlement']);[...new Set(ms.map(m => m.family))].forEach(f => { const arr = ms.filter(m => m.family === f), p = arr.reduce((s, m) => s + (paid[m.id] || 0), 0), sh = arr.reduce((s, m) => s + (shareMap[m.id] || 0), 0), n = p - sh; lines.push([f, (p / 100).toFixed(2), (sh / 100).toFixed(2), (n / 100).toFixed(2), n >= 0 ? 'Gets back' : 'Owes']) }); return lines.map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n') }
+      function tripCalc(trip) { const ms = tripMembersFor(trip.id), xs = tripExpensesFor(trip.id), total = xs.reduce((s, x) => s + x.amountPaise, 0), fams = [...new Set(ms.map(m => m.family))], shares = {}, paid = {}; ms.forEach(m => paid[m.id] = 0); xs.forEach(x => paid[x.paidById] = (paid[x.paidById] || 0) + x.amountPaise); if (trip.splitMode === 'family') { let fr = total % Math.max(1, fams.length); const familyShares = {}; fams.forEach(f => familyShares[f] = Math.floor(total / Math.max(1, fams.length)) + (fr-- > 0 ? 1 : 0)); fams.forEach(f => { const group = ms.filter(m => m.family === f); let rem = familyShares[f] % Math.max(1, group.length); group.forEach(m => shares[m.id] = Math.floor(familyShares[f] / Math.max(1, group.length)) + (rem-- > 0 ? 1 : 0)) }) } else { let rem = total % Math.max(1, ms.length); ms.forEach(m => shares[m.id] = Math.floor(total / Math.max(1, ms.length)) + (rem-- > 0 ? 1 : 0)) } const personRows = ms.map(m => ({ name: m.name, family: m.family, paid: paid[m.id] || 0, share: shares[m.id] || 0, net: (paid[m.id] || 0) - (shares[m.id] || 0) })); const familyRows = fams.map(f => { const group = personRows.filter(m => m.family === f), p = group.reduce((s, m) => s + m.paid, 0), sh = group.reduce((s, m) => s + m.share, 0); return { family: f, paid: p, share: sh, net: p - sh } }); return { ms, xs, total, personRows, familyRows } }
+      function resetTripForm() { $('tripForm').reset(); $('tripId').value = ''; $('tripStart').value = today(); $('tripEnd').value = today(); $('tripName').focus() }
+      function tripPrint(trip) {
+        const c = tripCalc(trip), w = window.open('', '_blank'); if (!w) { showToast('Allow pop-ups to print or save PDF'); return false } const expenseRows = c.xs.map(x => `<tr><td>${dateFmt(x.date)}</td><td>${esc(x.description)}</td><td>${esc(x.category)}</td><td>${esc(c.ms.find(m => m.id === x.paidById)?.name || '')}</td><td>${tripMoney(x.amountPaise)}</td></tr>`).join(''), familyRows = c.familyRows.map(f => `<tr><td>${esc(f.family)}</td><td>${tripMoney(f.paid)}</td><td>${tripMoney(f.share)}</td><td>${f.net >= 0 ? 'Gets back ' : 'Owes '}${tripMoney(Math.abs(f.net))}</td></tr>`).join(''), personRows = c.personRows.map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.family)}</td><td>${tripMoney(m.paid)}</td><td>${tripMoney(m.share)}</td><td>${m.net >= 0 ? 'Gets back ' : 'Owes '}${tripMoney(Math.abs(m.net))}</td></tr>`).join(''); w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(trip.name)} report</title><style>
+:root {
+  color-scheme: light;
+  --bg: #f5f8f7;
+  --surface: #ffffff;
+  --surface-soft: #edf8f4;
+  --surface-muted: #f3f7f5;
+  --text: #172b25;
+  --muted: #687a73;
+  --border: #e1eae5;
+  --primary: #087f5b;
+  --primary-strong: #066649;
+  --primary-soft: #e6f6ef;
+  --success: #16845b;
+  --warning: #b7791f;
+  --danger: #c03945;
+  --info: #2878b5;
+  --shadow: 0 8px 24px rgba(8, 127, 91, 0.08);
+  --shadow-soft: 0 10px 24px rgba(23, 43, 37, 0.06);
+  --radius: 18px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:none;background:none}img{max-width:100%;display:block}a{text-decoration:none;color:inherit}.app{min-height:100vh;background:var(--bg);padding:0 0 88px}.topbar{background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px clamp(14px,4vw,38px);display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:42px;height:42px;background:linear-gradient(135deg,var(--primary),var(--primary-strong));color:#fff;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:800;box-shadow:var(--shadow-soft)}.brand h1{font-size:1.1rem;line-height:1.2;margin:0;letter-spacing:-.02em}.brand p{margin:4px 0 0;color:var(--muted);font-size:.75rem}.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:all .15s ease;box-shadow:0 1px 0 rgba(0,0,0,.01)}.btn:hover,.btn:focus-visible{transform:translateY(-1px);border-color:var(--primary);box-shadow:0 8px 18px rgba(8,127,91,.08)}.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn.primary:hover,.btn.primary:focus-visible{background:var(--primary-strong);border-color:var(--primary-strong)}.btn.soft{background:var(--primary-soft);color:var(--primary-strong);border-color:transparent}.btn.danger{background:rgba(192,57,69,.06);color:var(--danger);border-color:rgba(192,57,69,.12)}.btn.small{padding:7px 10px;border-radius:10px;font-size:12px}.btn-more{display:none}.wrap{max-width:1200px;margin:auto;padding:20px clamp(14px,3vw,28px)}.welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:22px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}h2{font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.2;margin:5px 0 8px;letter-spacing:-.04em}.sub{color:var(--muted);margin:0}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}.stat,.panel,.person-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}.stat{padding:18px}.stat-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;font-weight:700}.stat-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--surface-soft);font-size:17px;color:var(--primary)}.stat-value{font-size:clamp(1.3rem,2.5vw,2rem);font-weight:800;letter-spacing:-.04em;margin:10px 0 3px;font-variant-numeric:tabular-nums}.stat-note{font-size:12px;color:var(--muted)}.green{color:var(--success)}.red{color:var(--danger)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h3{font-size:1.05rem;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:3px 0 0}.content-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:18px}.panel{padding:20px;min-width:0}.search-row{display:flex;gap:9px;margin-bottom:14px}.field{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);outline:none;min-width:0;transition:border-color .15s ease, box-shadow .15s ease}.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(8,127,91,.12)}.person-list{display:grid;gap:9px}.person-row{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s ease;background:linear-gradient(180deg,#fff,#fcfffd)}.person-row:hover{border-color:var(--primary);background:var(--surface-soft)}.avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary-strong);font-weight:800;flex-shrink:0}.person-meta{min-width:0;flex:1}.person-meta strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person-meta small{color:var(--muted)}.balance{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.balance small{display:block;color:var(--muted);font-weight:600;font-size:11px}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}table{width:100%;border-collapse:collapse;min-width:590px}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--surface-muted)}td{font-size:13px}tbody tr:last-child td{border-bottom:0}.amount{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.type-pill{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}.type-pill.given{background:#fff0df;color:#9a570b}.type-pill.received{background:#dff5ed;color:#086b53}.empty{text-align:center;padding:28px 12px;color:var(--muted)}.empty .emoji{font-size:28px;margin-bottom:8px}.bottomnav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;padding:8px clamp(8px,3vw,18px) calc(8px + env(safe-area-inset-bottom));z-index:10}.navbtn{border:0;background:transparent;color:var(--muted);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;min-width:0;flex:1 1 0;max-width:100px}.navbtn span{font-size:16px;line-height:1}.navbtn.active{background:var(--primary-soft);color:var(--primary-strong);box-shadow:inset 0 0 0 1px rgba(8,127,91,.05)}.page{display:none}.page.active{display:block}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.filters .field{width:auto;flex:1;min-width:140px}.modal-backdrop{position:fixed;inset:0;background:rgba(8,19,15,.45);z-index:30;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.show{display:flex}.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 70px rgba(0,0,0,.18)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}.modal-head h3{margin:0;font-size:1.1rem}.icon-btn{border:0;background:var(--surface-muted);color:var(--text);border-radius:10px;width:34px;height:34px;font-size:19px}.modal-body{padding:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-group{display:flex;flex-direction:column;gap:6px}.form-group.full{grid-column:1/-1}.form-group label{font-size:12px;font-weight:800;color:var(--muted)}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;flex-wrap:wrap}.segmented{display:flex;gap:5px;padding:4px;background:var(--surface-muted);border-radius:11px}.segmented button{flex:1;border:0;border-radius:8px;padding:9px;background:transparent;color:var(--muted);font-weight:800}.segmented button.active{background:var(--primary);color:#fff}.toast{position:fixed;top:82px;right:18px;background:rgba(23,43,37,.96);color:#fff;padding:12px 16px;border-radius:12px;z-index:40;box-shadow:var(--shadow);display:none}.toast.show{display:block}.ledger-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.mini-stat{background:var(--surface-muted);border-radius:12px;padding:13px}.mini-stat small{display:block;color:var(--muted);font-size:11px}.mini-stat strong{font-size:1.1rem;display:block;margin-top:5px}.page-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}.back{border:1px solid var(--border);background:var(--surface);border-radius:10px;width:40px;height:40px;color:var(--text);font-size:18px}.person-detail-head{display:flex;align-items:center;gap:12px}.person-detail-head .avatar{width:50px;height:50px}.notice{padding:12px 14px;border-radius:10px;background:var(--surface-soft);color:var(--muted);font-size:12px;margin-top:16px}.hidden{display:none!important}.more-menu{position:absolute;top:58px;right:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);min-width:180px;padding:8px;display:flex;flex-direction:column;gap:6px;z-index:25}.more-menu button{width:100%;text-align:left;padding:10px 12px;border-radius:10px;background:transparent;color:var(--text);font-weight:600}.more-menu button:hover{background:var(--surface-muted)}@media (max-width: 850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}.welcome{align-items:flex-start;flex-direction:column}.welcome .btn{width:100%}.wrap{padding-top:20px}}@media (max-width: 520px){.topbar{padding:12px 14px}.brand h1{font-size:1rem}.brand p{font-size:.68rem}.top-actions{gap:6px}.btn{padding:10px 12px}.btn.primary,.btn:not(.btn-small){min-height:44px}.btn-more{display:inline-flex}.top-actions .btn:not(.btn-more):not(.primary){display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{padding:14px}.stat-value{font-size:1.15rem}.navbtn{padding:8px 4px;font-size:9px}.navbtn span{font-size:15px}.bottomnav{gap:4px;padding-inline:8px}.form-grid{grid-template-columns:1fr}.filters{display:grid;grid-template-columns:1fr}.filters .field{min-width:0}.search-row{display:grid;grid-template-columns:1fr auto}.table-wrap{border-radius:10px}.modal{border-radius:16px}.modal-body{padding:16px}.toast{top:70px;right:10px;left:10px;max-width:none}}@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto !important;transition:none !important}}
+</style></head><body><h1>${esc(trip.name)} — Trip Report</h1><p>${dateFmt(trip.startDate)} – ${dateFmt(trip.endDate)} · ${trip.splitMode === 'family' ? 'Family-wise' : 'Person-wise'} split</p><div class="summary"><b>Total expense: ${tripMoney(c.total)}</b><b>Participants: ${c.ms.length}</b><b>Families: ${c.familyRows.length}</b></div><h2>Expense details</h2><table><thead><tr><th>Date</th><th>Purpose</th><th>Category</th><th>Paid by</th><th>Amount</th></tr></thead><tbody>${expenseRows}</tbody></table><h2>Family-wise settlement</h2><table><thead><tr><th>Family</th><th>Paid</th><th>Share</th><th>Net settlement</th></tr></thead><tbody>${familyRows}</tbody></table><h2>Person-wise settlement</h2><table><thead><tr><th>Person</th><th>Family</th><th>Paid</th><th>Share</th><th>Net settlement</th></tr></thead><tbody>${personRows}</tbody></table><p>Generated on ${dateFmt(today())}.</p><\/body><\/html>`); w.document.close(); w.focus(); w.print(); return true
+      }
+      $('tripNewBtn').onclick = () => { resetTripForm(); $('tripParticipants').value = ''; $('tripName').value = ''; $('tripName').focus() }; $('tripCancelEdit').onclick = resetTripForm;
+      $('tripForm').addEventListener('submit', async e => { e.preventDefault(); const name = $('tripName').value.trim(), startDate = $('tripStart').value, endDate = $('tripEnd').value, splitMode = $('tripSplitMode').value, raw = $('tripParticipants').value.split(/\r?\n/).map(x => x.trim()).filter(Boolean); if (endDate < startDate) { showToast('End date must be on or after start date'); return } const parsed = raw.map(line => { const p = line.split(/\s+-\s+/); return { name: p[0].trim(), family: (p.slice(1).join(' - ').trim() || p[0].trim() + ' Family') } }); if (!parsed.length || parsed.some(m => !m.name) || new Set(parsed.map(m => m.name.toLowerCase())).size !== parsed.length) { showToast('Add unique participant names, one per line'); return } const id = $('tripId').value || uid(); if (!tripRecords.some(t => t.id === id) && tripRecords.some(t => t.name.toLowerCase() === name.toLowerCase() && !t.finishedAt)) { showToast('An active trip with this name already exists'); return } const existing = tripMembersFor(id); if (existing.length && tripExpensesFor(id).length) { showToast('Participants cannot be changed after expenses exist. Create a new trip to change the group.'); return } const trip = { id, name, startDate, endDate, splitMode, createdAt: tripRecords.find(t => t.id === id)?.createdAt || new Date().toISOString() }; await put('trips', trip); for (const m of existing) await remove('tripMembers', m.id); for (const m of parsed) await put('tripMembers', { id: uid(), tripId: id, name: m.name, family: m.family }); await loadTrips(); activeTripId = id; renderTripWorkspace(); showToast('Trip and participants saved') });
+      document.addEventListener('click', async e => { const open = e.target.closest('[data-open-trip]'); if (open) { activeTripId = open.dataset.openTrip; renderTripWorkspace(); return } const del = e.target.closest('[data-delete-trip-expense]'); if (del && confirm('Delete this trip expense?')) { await remove('tripExpenses', del.dataset.deleteTripExpense); await loadTrips(); renderTripWorkspace(); showToast('Trip expense deleted') } });
+      $('tripExpenseClear').onclick = () => { $('tripExpenseForm').reset(); $('tripExpenseId').value = ''; $('tripExpenseDate').value = today() }; $('tripExpenseForm').addEventListener('submit', async e => { e.preventDefault(); if (!activeTripId) return; const amount = Number($('tripExpenseAmount').value); if (!Number.isFinite(amount) || amount <= 0) { showToast('Enter a valid expense amount'); return } const id = $('tripExpenseId').value || uid(); const expense = { id, tripId: activeTripId, date: $('tripExpenseDate').value, category: $('tripExpenseCategory').value, paidById: $('tripExpensePaidBy').value, amountPaise: paise(amount), description: $('tripExpenseDescription').value.trim(), createdAt: new Date().toISOString() }; if (!expense.paidById || !expense.description) { showToast('Complete all expense fields'); return } await put('tripExpenses', expense); $('tripExpenseForm').reset(); $('tripExpenseDate').value = today(); await loadTrips(); renderTripWorkspace(); showToast('Trip expense saved') });
+      $('tripExportCsv').onclick = () => { const t = tripRecords.find(x => x.id === activeTripId); if (t) download(`${t.name.replace(/[^a-z0-9-_]+/gi, '-')}-trip-report.csv`, tripCsv(t), 'text/csv;charset=utf-8') }; $('tripPrintPdf').onclick = () => { const t = tripRecords.find(x => x.id === activeTripId); if (t) tripPrint(t) };
+      $('tripFinishBtn').onclick = async () => { const t = tripRecords.find(x => x.id === activeTripId); if (!t) return; if (!confirm('Finish this trip? The app will download an Excel-compatible CSV and open the printable report. Save the report as PDF, then confirm deletion in the next message.')) return; download(`${t.name.replace(/[^a-z0-9-_]+/gi, '-')}-trip-final-report.csv`, tripCsv(t), 'text/csv;charset=utf-8'); if (!tripPrint(t)) { showToast('Trip was not deleted. Export the report first.'); return } if (!confirm('Have you saved the PDF/printed report and CSV? Permanently delete only this trip, its participants and expenses? This cannot be undone.')) { showToast('Trip kept safely'); return } for (const x of tripExpensesFor(t.id)) await remove('tripExpenses', x.id); for (const m of tripMembersFor(t.id)) await remove('tripMembers', m.id); await remove('trips', t.id); activeTripId = null; await loadTrips(); showToast('Trip finished; temporary trip data deleted') };
+      const baseShowPage = showPage; showPage = function (id) { baseShowPage(id); if (id === 'tripsPage') loadTrips() };
+      registerServiceWorker(); updateOfflineStatus();
+      (async () => { try { db = await openDB(); await ensurePreferences(); await refresh(); await loadTrips() } catch (e) { console.error(e); showToast('Browser storage unavailable. Try a supported browser.') } })();
+    })();
+  </script>
+</body>
+
+</html>
